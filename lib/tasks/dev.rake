@@ -12,7 +12,7 @@ namespace :dev do
   end
 
   private
-  def showSpinner(msgStart, msgEnd = "Complet")
+  def showSpinner(msgStart, msgEnd = "Complet!")
     spinner = TTY::Spinner.new("[:spinner] #{msgStart}", format: :dots)
     spinner.auto_spin
     yield

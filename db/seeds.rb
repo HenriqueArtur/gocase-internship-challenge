@@ -1,12 +1,5 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
-
-pcArray = [['Site BR', 'BR', 'SEDEX'], ['Site EU', 'EU', 'FEDEX'], ['Site US', 'US', 'EUROSENDER']]
+pcArray = [['Site BR', 'BR', 'SEDEX'], ['Site EU', 'EU', 'EUROSENDER'], ['Site US', 'US', 'FEDEX']]
+status = ['ready', 'production', 'closing', 'sent']
 
 10.times do
     sample =  pcArray.sample
@@ -18,6 +11,6 @@ pcArray = [['Site BR', 'BR', 'SEDEX'], ['Site EU', 'EU', 'FEDEX'], ['Site US', '
         delivery_service: sample[2],
         total_value: "R$ " + rand(100..500).to_s + ",00",
         line_items: "[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}, {sku: powebank-sunshine, capacity: 10000mah}, {sku: earphone-standard, color: white}]",
-        status: 'Ready'
+        status: status.sample
     })
 end

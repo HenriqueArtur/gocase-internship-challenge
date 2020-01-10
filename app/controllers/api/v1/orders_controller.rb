@@ -25,14 +25,26 @@ class Api::V1::OrdersController < Api::V1::ApiController
     end
   end
 
-  def get_by_reference
-    order = Order.where(reference: params[:reference])
-    render json: order
+  def get_by_reference_or_name
+    orders = Order.where(reference: params[:reference]).order('created_at DESC').or(Order.where(client_name: params[:client_name]).order('created_at DESC'))
+    if orders == []
+      render json: {status: 'SUCCESS', menssage:'No orders finded', data:orders}, status: :ok
+    else
+      render json: {status: 'SUCCESS', menssage:'Results retuned', data:orders}, status: :ok
+    end
   end
 
   def list_by
-    orders = Order.where(purchase_channel: params[:purchase_channel])
-    render json: orders
+    if check_purchase_channel && check_status
+      orders = Order.where("purchase_channel = ? AND status = ?", params[:purchase_channel], params[:status])
+      if orders == []
+        render json: {status: 'SUCCESS', menssage:'No orders finded', data:orders}, status: :ok
+      else
+        render json: {status: 'SUCCESS', menssage:'Results retuned', data:orders}, status: :ok
+      end
+    else
+      render json: {status: 'ERROR', menssage:'Invalid params'}, status: :unprocessable_entity
+    end
   end
 
   private
@@ -56,6 +68,17 @@ class Api::V1::OrdersController < Api::V1::ApiController
 
       dsArray.each do |ds|
         if ds == params[:delivery_service]
+          return true
+        end
+      end
+      return false
+    end
+
+    def check_status
+      statusArray = ['ready', 'production', 'closing', 'sent']
+
+      statusArray.each do |s|
+        if s == params[:status]
           return true
         end
       end
