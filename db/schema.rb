@@ -10,10 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_09_212153) do
+ActiveRecord::Schema.define(version: 2020_01_13_161747) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "batches", force: :cascade do |t|
+    t.string "reference"
+    t.string "purchase_channel"
+    t.string "orders"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "orders", force: :cascade do |t|
     t.string "reference"
@@ -26,6 +34,9 @@ ActiveRecord::Schema.define(version: 2020_01_09_212153) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "batch_id"
+    t.index ["batch_id"], name: "index_orders_on_batch_id"
   end
 
+  add_foreign_key "orders", "batches"
 end

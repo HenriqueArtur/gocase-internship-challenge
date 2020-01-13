@@ -14,3 +14,9 @@ status = ['ready', 'production', 'closing', 'sent']
         status: status.sample
     })
 end
+
+Batch.create({
+    reference: "202001-01",
+    purchase_channel: "Site BR",
+    orders: Order.select('reference').where(purchase_channel: 'Site BR')#.to_json
+})
