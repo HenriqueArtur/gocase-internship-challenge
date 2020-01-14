@@ -15,13 +15,14 @@ status = ['ready', 'production', 'closing', 'sent']
     })
 end
 
-# orders = Order.where(purchase_channel: 'Site BR')
-
-Batch.create({
+batch = Batch.create({
     reference: "202001-01",
     purchase_channel: "Site BR",
 })
 
-# orders.each do |order|
-#   order.update_attributes(status: 'production', batch_id: 1)
-# end
+orders = Order.where(purchase_channel: 'Site BR')
+
+orders.each do |order|
+  order.batch = batch
+  order.update_attribute(:status, 'production')
+end

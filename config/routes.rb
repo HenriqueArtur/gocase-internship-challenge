@@ -1,7 +1,12 @@
 Rails.application.routes.draw do
   namespace 'api' do
     namespace 'v1' do
-      resources :batches
+      resources :batches do
+        collection do
+          post 'mark_as_closing'
+          post 'mark_as_sent'
+        end
+      end
       resources :orders do
         collection do
           get 'list_by'
