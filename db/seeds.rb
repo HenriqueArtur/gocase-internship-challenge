@@ -2,7 +2,7 @@ pcArray = [['Site BR', 'BR', 'SEDEX'], ['Site EU', 'EU', 'EUROSENDER'], ['Site U
 status = ['ready', 'production', 'closing', 'sent']
 
 10.times do
-    sample =  pcArray.sample
+    sample = pcArray.sample
     Order.create({
         reference: sample[1] + rand(100000..999999).to_s,
         purchase_channel: sample[0],
@@ -11,12 +11,17 @@ status = ['ready', 'production', 'closing', 'sent']
         delivery_service: sample[2],
         total_value: "R$ " + rand(100..500).to_s + ",00",
         line_items: "[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}, {sku: powebank-sunshine, capacity: 10000mah}, {sku: earphone-standard, color: white}]",
-        status: status.sample
+        status: 'ready'
     })
 end
+
+# orders = Order.where(purchase_channel: 'Site BR')
 
 Batch.create({
     reference: "202001-01",
     purchase_channel: "Site BR",
-    orders: Order.select('reference').where(purchase_channel: 'Site BR')#.to_json
 })
+
+# orders.each do |order|
+#   order.update_attributes(status: 'production', batch_id: 1)
+# end
