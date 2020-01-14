@@ -1,9 +1,5 @@
 class Api::V1::ApiController < ApplicationController
   private
-    def check_reference_lenght
-      params[:reference].to_s.length === 8 ? true : false
-    end
-
     def check_purchase_channel
       pcArray = ['Site BR', 'Site EU', 'Site US']
 
@@ -37,14 +33,7 @@ class Api::V1::ApiController < ApplicationController
       return false
     end
 
-    def exit?
-      orders = Order.all
-
-      orders.each do |order|
-        if order.reference == params[:reference]
-          return true
-        end
-      end
-      return false
+    def renderJSON(status, msg, httpStatus, data = [])
+      render json: {status: status, menssage: msg, data: data}, status: httpStatus
     end
 end

@@ -6,45 +6,57 @@ class Api::V1::OrdersController < Api::V1::ApiController
   end
 
   def create
-    if check_delivery_service && check_reference_lenght && check_purchase_channel
-      if exit? == false
-        order = Order.new(reference: params[:reference], purchase_channel: params[:purchase_channel], client_name: params[:client_name],
-                          address: params[:address], delivery_service: params[:delivery_service], total_value: params[:total_value],
-                          line_items: params[:line_items], status: 'ready')
-        
-        if order.save
-          render json: {status: 'SUCCESS', menssage:'Loaded Order', data:order}, status: :ok
-        else
-          render json: {status: 'ERROR', menssage:'Order not saved'}, status: :unprocessable_entity
-        end
-      else
-        render json: {status: 'ERROR', menssage:'Reference already exists'}, status: :unprocessable_entity
-      end
+    if validate_all
+      order = Order.new(reference:        get_country << sprintf('%06i', Order.maximum(:id) == nil ? 1 : Order.maximum(:id).next),
+                        purchase_channel: params[:purchase_channel],
+                        client_name:      params[:client_name],
+                        address:          params[:address],
+                        delivery_service: params[:delivery_service],
+                        total_value:      params[:total_value],
+                        line_items:       params[:line_items],
+                        status:           'ready')
+      order.save ? renderJSON('SUCCESS', 'Order saved', :created, order) : renderJSON('ERROR', 'Order not saved', :unprocessable_entity)
     else
-      render json: {status: 'ERROR', menssage:'Invalid params'}, status: :unprocessable_entity
+      renderJSON('ERROR', 'Invalid params', :unprocessable_entity)
     end
   end
 
-  def get_by_reference_or_name
-    orders = Order.where(reference: params[:reference]).order('created_at DESC').or(Order.where(client_name: params[:client_name]).order('created_at DESC'))
-    if orders == []
-      render json: {status: 'SUCCESS', menssage:'No orders finded', data:orders}, status: :ok
+  def get_status
+    if params[:reference] == [] && params[:client_name] == []
+      orders = Order.where(reference: params[:reference]).order('created_at DESC').or(Order.where(client_name: params[:client_name]).order('created_at DESC'))
+      orders == [] ? renderJSON('SUCCESS', 'No results finded', :ok, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
     else
-      render json: {status: 'SUCCESS', menssage:'Results retuned', data:orders}, status: :ok
+      renderJSON('ERROR', 'No params passed', :unprocessable_entity)
     end
   end
 
   def list_by
     if check_purchase_channel && check_status
       orders = Order.where("purchase_channel = ? AND status = ?", params[:purchase_channel], params[:status])
-      if orders == []
-        render json: {status: 'SUCCESS', menssage:'No orders finded', data:orders}, status: :ok
-      else
-        render json: {status: 'SUCCESS', menssage:'Results retuned', data:orders}, status: :ok
-      end
+      orders == [] ? renderJSON('SUCCESS', 'No results finded', :ok, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
     else
-      render json: {status: 'ERROR', menssage:'Invalid params'}, status: :unprocessable_entity
+      renderJSON('ERROR', 'Invalid params', :unprocessable_entity)
     end
   end
 
+  private
+    def validate_all
+      if check_delivery_service && check_purchase_channel
+        return true
+      end
+      return false
+    end
+
+    def get_country
+      countryArray = ['BR', 'EU', 'US']
+
+      case params[:purchase_channel]
+      when 'Site BR'
+        return 'BR'
+      when 'Site EU'
+        return 'EU'
+      when 'Site US'
+        return 'US'
+      end
+    end
 end

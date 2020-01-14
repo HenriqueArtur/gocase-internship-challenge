@@ -10,7 +10,7 @@ Rails.application.routes.draw do
       resources :orders do
         collection do
           get 'list_by'
-          get 'get_by_reference_or_name'
+          get 'get_status'
         end
       end
     end
