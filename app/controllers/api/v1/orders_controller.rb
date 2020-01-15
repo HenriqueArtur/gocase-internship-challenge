@@ -1,10 +1,4 @@
 class Api::V1::OrdersController < Api::V1::ApiController
-  # APAGAR
-  def index
-    orders = Order.all
-    render json: orders
-  end
-
   def create
     if validate_all
       order = Order.new(reference:        get_country << sprintf('%06i', Order.maximum(:id) == nil ? 1 : Order.maximum(:id).next),
@@ -22,11 +16,11 @@ class Api::V1::OrdersController < Api::V1::ApiController
   end
 
   def get_status
-    if params[:reference] == [] && params[:client_name] == []
+    if params[:reference].blank? && params[:client_name].blank?
+      renderJSON('ERROR', 'No params passed', :unprocessable_entity)
+    else
       orders = Order.where(reference: params[:reference]).order('created_at DESC').or(Order.where(client_name: params[:client_name]).order('created_at DESC'))
       orders == [] ? renderJSON('SUCCESS', 'No results finded', :ok, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
-    else
-      renderJSON('ERROR', 'No params passed', :unprocessable_entity)
     end
   end
 
@@ -48,15 +42,20 @@ class Api::V1::OrdersController < Api::V1::ApiController
     end
 
     def get_country
-      countryArray = ['BR', 'EU', 'US']
+      countryArray = ['Site BR', 'Site EN', 'Site DE', 'Site FR', 'Site IT', 'Iguatemi Store']
 
       case params[:purchase_channel]
       when 'Site BR'
+      when 'Iguatemi Store'
         return 'BR'
-      when 'Site EU'
-        return 'EU'
-      when 'Site US'
-        return 'US'
+      when 'Site EN'
+        return 'EN'
+      when 'Site DE'
+        return 'DE'
+      when 'Site FR'
+        return 'FR'
+      when 'Site IT'
+        return 'IT'
       end
     end
 end

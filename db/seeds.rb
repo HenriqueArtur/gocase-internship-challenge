@@ -1,28 +1,31 @@
-pcArray = [['Site BR', 'BR', 'SEDEX'], ['Site EU', 'EU', 'EUROSENDER'], ['Site US', 'US', 'FEDEX']]
-status = ['ready', 'production', 'closing', 'sent']
+purchase_channel_array = [
+                            ['Site BR', 'BR', 'R$ ', ['SEDEX', 'PAC']],
+                            ['Site EN', 'EN', '$ ', ['FEDEX']],
+                            ['Site DE', 'DE', '€ ', ['EUROSENDER', 'deSENDER']],
+                            ['Site FR', 'FR', '€ ', ['EUROSENDER', 'frSENDER']],
+                            ['Site IT', 'IT', '€ ', ['EUROSENDER', 'itSENDER']],
+                            ['Iguatemi Store', 'BR', 'R$ ', ['SEDEX', 'PAC']]
+                          ]
 
-10.times do
-    sample = pcArray.sample
+line_items_array = [
+                      ['[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}]', '100.00'],
+                      ['[{sku: powebank-sunshine, capacity: 10000mah}]', '230.00'],
+                      ['[{sku: earphone-standard, color: white}]', '50.00'],
+                      ['[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}, {sku: powebank-sunshine, capacity: 10000mah}]', '330.00'],
+                      ['[{sku: powebank-sunshine, capacity: 10000mah}, {sku: earphone-standard, color: white}]', '280.00'],
+                      ['[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}, {sku: powebank-sunshine, capacity: 10000mah}, {sku: earphone-standard, color: white}]', '480.00']
+                   ]
+15.times do
+    pcSample = purchase_channel_array.sample
+    liArray = line_items_array.sample
     Order.create({
-        reference: sample[1] + rand(100000..999999).to_s,
-        purchase_channel: sample[0],
-        client_name: Faker::Games::Witcher.character,
+        reference: pcSample[1] + sprintf('%06i', Order.maximum(:id) == nil ? 1 : Order.maximum(:id).next),
+        purchase_channel: pcSample[0],
+        client_name: Faker::Games::HalfLife.character,
         address: Faker::Address.full_address,
-        delivery_service: sample[2],
-        total_value: "R$ " + rand(100..500).to_s + ",00",
-        line_items: "[{sku: case-my-best-friend, model: iPhone X, case type: Rose Leather}, {sku: powebank-sunshine, capacity: 10000mah}, {sku: earphone-standard, color: white}]",
+        delivery_service: pcSample[3].sample,
+        total_value: pcSample[2] + liArray[1],
+        line_items: liArray[0],
         status: 'ready'
     })
-end
-
-batch = Batch.create({
-    reference: "202001-01",
-    purchase_channel: "Site BR",
-})
-
-orders = Order.where(purchase_channel: 'Site BR')
-
-orders.each do |order|
-  order.batch = batch
-  order.update_attribute(:status, 'production')
 end

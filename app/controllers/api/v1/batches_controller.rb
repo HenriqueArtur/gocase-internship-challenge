@@ -1,14 +1,9 @@
 class Api::V1::BatchesController < Api::V1::ApiController
-  def index
-    batches = Batch.all
-    render json: batches
-  end
-
   def create
     orders = Order.where("purchase_channel = ? AND status = ?", params[:purchase_channel], 'ready')
 
     if check_purchase_channel && orders != []
-      batch = Batch.new(reference: Date.today.year.to_s << sprintf('%02i', Date.today.month) << '-' << sprintf('%02i', Batch.maximum(:id).next),
+      batch = Batch.new(reference:        Date.today.year.to_s << sprintf('%02i', Date.today.month) << '-' << sprintf('%02i', Batch.maximum(:id) == nil ? 1 : Batch.maximum(:id).next),
                         purchase_channel: params[:purchase_channel])
       orders.each do |order|
         order.batch = batch
@@ -26,55 +21,28 @@ class Api::V1::BatchesController < Api::V1::ApiController
   end
 
   def mark_as_closing
-    Batch.exists?(['reference LIKE ?', params[:reference]]) ? order_status_to_closing : renderJSON('ERROR', 'batch dont finded', :ok)
+    if Batch.exists?(['reference LIKE ?', params[:reference]])
+      orders = Batch.where(reference: params[:reference]).take.orders.where(status: 'production')
+      orders != [] ? order_status_to('closing', orders) : renderJSON('ERROR', 'orders not in production', :ok)
+    else
+      renderJSON('ERROR', 'batch dont finded', :ok)
+    end
   end
 
   def mark_as_sent
-    # if Batch.exists?(['reference = ? AND delivery_service = ?', params[:reference], params[:delivery_service]])
-    #   order_is_closing? ? order_status_to_sent : renderJSON('ERROR', 'Orders in Batch dont closing', :ok)
-    #   # if order_is_closing?
-    #   #   orders = Batch.where(reference: params[:reference]).take.orders
-    #   #   orders.each do |order|
-    #   #     order.update_attribute(:status, 'sent')
-    #   #   end
-    #   #   render json: {status: 'SUCCESS', menssage:'Orders Updated', data: orders}, status: :ok
-    #   # else
-    #   #   render json: {status: 'ERROR', menssage:'Orders in Batch dont closing'}, status: :unprocessable_entity
-    #   # end
-    # else
-    #   renderJSON('ERROR', 'Batch dont finded', :unprocessable_entity) 
-    # end
-    #batch = Batch.includes(:orders)
-    #orders = Order.includes(:batch).where('batch.reference = ?', params[:reference]).references(:batch)
-    orders = Batch.where(reference: params[:reference]).take.orders.where('delivery_service = ?', params[:delivery_service])
-    renderJSON(' ', ' ', :ok, orders)
+    if Batch.exists?(['reference = ?', params[:reference]])
+      orders = Batch.where(reference: params[:reference]).take.orders.where("delivery_service = ? AND status = 'closing'", params[:delivery_service])
+      orders != [] ? order_status_to('sent', orders) : renderJSON('ERROR', "Orders with delivery_service #{params[:delivery_service]} no finded", :ok, orders)
+    else
+      renderJSON('ERROR', "Batch witch reference #{params[:reference]} no finded", :unprocessable_entity)
+    end
   end
 
   private
-    def order_is_closing?
-      orders = Batch.where(reference: params[:reference]).take.orders
+    def order_status_to(status, orders)
       orders.each do |order|
-        if order.status != 'closing'
-          return false
-        end
-        return true
+        order.update_attribute(:status, status)
       end
-    end
-
-    def order_status_to_closing
-      orders = Batch.where(reference: params[:reference]).take.orders
-      orders.each do |order|
-        order.update_attribute(:status, 'closing')
-      end
-      renderJSON('SUCCESS', "#{orders.length} orders updated to 'closing'", :ok, orders)
-    end
-
-    def order_status_to_sent
-      orders = Batch.where([reference: params[:reference]]).take.orders.where([delivery_service: params[:delivery_service]]).take
-      #orders = Batch.where(['reference = ? AND delivery_service = ?', params[:reference], params[:delivery_service]]).take.orders
-      orders.each do |order|
-        order.update_attribute(:status, 'closing')
-      end
-      renderJSON('SUCCESS', "#{orders.length} orders updated to 'sent'", :ok, orders)
+      renderJSON('SUCCESS', "#{orders.length} orders updated to '#{status}'", :ok, orders)
     end
 end

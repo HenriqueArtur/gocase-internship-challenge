@@ -1,7 +1,7 @@
 class Api::V1::ApiController < ApplicationController
   private
     def check_purchase_channel
-      pcArray = ['Site BR', 'Site EU', 'Site US']
+      pcArray = ['Site BR', 'Site EN', 'Site DE', 'Site FR', 'Site IT', 'Iguatemi Store']
 
       pcArray.each do |pc|
         if pc == params[:purchase_channel]
@@ -12,7 +12,7 @@ class Api::V1::ApiController < ApplicationController
     end
 
     def check_delivery_service
-      dsArray = ['EUROSENDER', 'SEDEX', 'FEDEX']
+      dsArray = ['EUROSENDER', 'SEDEX', 'FEDEX', 'PAC', 'frROSENDER', 'deROSENDER', 'itROSENDER']
 
       dsArray.each do |ds|
         if ds == params[:delivery_service]
