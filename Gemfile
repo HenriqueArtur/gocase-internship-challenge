@@ -35,11 +35,18 @@ gem 'pry-rails', :group => :development
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'faker'
+  #gem 'rspec', '~> 3.4'
+  gem "rspec-core", :github => "rspec/rspec-core"
+  gem "rspec-expectations", :github => "rspec/rspec-expectations"
+  gem "rspec-mocks", :github => "rspec/rspec-mocks"
+  gem "rspec-support", :github => "rspec/rspec-support"
+  gem "rspec-rails", :github => "rspec/rspec-rails"
+  gem 'factory_bot', '~> 4.8', '>= 4.8.2'
 end
 
 group :development do
   gem 'listen', '>= 3.0.5', '< 3.2'
-  gem 'faker'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
