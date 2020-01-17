@@ -12,7 +12,7 @@ class Api::V1::ApiController < ApplicationController
     end
 
     def check_delivery_service
-      dsArray = ['EUROSENDER', 'SEDEX', 'FEDEX', 'PAC', 'frROSENDER', 'deROSENDER', 'itROSENDER']
+      dsArray = ['EUROSENDER', 'SEDEX', 'FEDEX', 'PAC', 'frSENDER', 'deSENDER', 'itSENDER']
 
       dsArray.each do |ds|
         if ds == params[:delivery_service]

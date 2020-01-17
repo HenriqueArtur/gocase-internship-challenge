@@ -23,6 +23,15 @@ namespace :dev do
     end
   end
 
+  desc "Run Tests"
+  task tests: :environment do
+    if Rails.env.development?
+      puts %x(bundle exec rspec spec/requests/orders_spec.rb spec/requests/batches_spec.rb)
+    else
+      puts "Environment isnt development"
+    end
+  end
+
   private
   def showSpinner(msgStart, msgEnd = "Complet!")
     spinner = TTY::Spinner.new("[:spinner] #{msgStart}", format: :dots)

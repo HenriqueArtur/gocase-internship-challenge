@@ -16,25 +16,25 @@ class Api::V1::BatchesController < Api::V1::ApiController
         renderJSON('ERROR', 'Batch not saved', :unprocessable_entity)
       end
     else
-      !check_purchase_channel ? renderJSON('ERROR', 'Invalid Puchase Channel', :unprocessable_entity) : renderJSON('ERROR', 'No Orders to create a Batch', :unprocessable_entity)
+      !check_purchase_channel ? renderJSON('ERROR', 'Invalid Puchase Channel', :not_found) : renderJSON('ERROR', 'No Orders to create a Batch', :unprocessable_entity)
     end
   end
 
   def mark_as_closing
     if Batch.exists?(['reference LIKE ?', params[:reference]])
       orders = Batch.where(reference: params[:reference]).take.orders.where(status: 'production')
-      orders != [] ? order_status_to('closing', orders) : renderJSON('ERROR', 'orders not in production', :ok)
+      orders != [] ? order_status_to('closing', orders) : renderJSON('ERROR', 'orders not in production', :unprocessable_entity)
     else
-      renderJSON('ERROR', 'batch dont finded', :ok)
+      renderJSON('ERROR', 'batch dont finded', :not_found)
     end
   end
 
   def mark_as_sent
     if Batch.exists?(['reference = ?', params[:reference]])
       orders = Batch.where(reference: params[:reference]).take.orders.where("delivery_service = ? AND status = 'closing'", params[:delivery_service])
-      orders != [] ? order_status_to('sent', orders) : renderJSON('ERROR', "Orders with delivery_service #{params[:delivery_service]} no finded", :ok, orders)
+      orders != [] ? order_status_to('sent', orders) : renderJSON('ERROR', "Orders with delivery_service #{params[:delivery_service]} no finded", :not_found, orders)
     else
-      renderJSON('ERROR', "Batch witch reference #{params[:reference]} no finded", :unprocessable_entity)
+      renderJSON('ERROR', "Batch witch reference #{params[:reference]} no finded", :not_found)
     end
   end
 

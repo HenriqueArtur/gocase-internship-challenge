@@ -11,7 +11,7 @@ class Api::V1::OrdersController < Api::V1::ApiController
                         status:           'ready')
       order.save ? renderJSON('SUCCESS', 'Order saved', :created, order) : renderJSON('ERROR', 'Order not saved', :unprocessable_entity)
     else
-      renderJSON('ERROR', 'Invalid params', :unprocessable_entity)
+      renderJSON('ERROR', 'Invalid params', :not_found)
     end
   end
 
@@ -20,14 +20,14 @@ class Api::V1::OrdersController < Api::V1::ApiController
       renderJSON('ERROR', 'No params passed', :unprocessable_entity)
     else
       orders = Order.where(reference: params[:reference]).order('created_at DESC').or(Order.where(client_name: params[:client_name]).order('created_at DESC'))
-      orders == [] ? renderJSON('SUCCESS', 'No results finded', :ok, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
+      orders == [] ? renderJSON('SUCCESS', 'No results finded', :not_found, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
     end
   end
 
   def list_by
     if check_purchase_channel && check_status
       orders = Order.where("purchase_channel = ? AND status = ?", params[:purchase_channel], params[:status])
-      orders == [] ? renderJSON('SUCCESS', 'No results finded', :ok, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
+      orders == [] ? renderJSON('SUCCESS', 'No results finded', :not_found, orders) : renderJSON('SUCCESS', "#{orders.length} results finded", :ok, orders)
     else
       renderJSON('ERROR', 'Invalid params', :unprocessable_entity)
     end

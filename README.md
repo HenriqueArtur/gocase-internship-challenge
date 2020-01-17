@@ -1,18 +1,24 @@
 #  Gocase - Backend Challenge (REST API)
-This API was developed as a Backend Challenge to Gocase's recruitment process for internship.
+*This API was developed as a Backend Challenge to Gocase's recruitment process for internship.*
 
 ### On this API it's possible to:
-* Add Orders to database;
-* Get the status of an Order pass *reference* or *client name*;
-* List the Orders of a *Purchase Channel* restricting to a single *status*;
-* Create a Batch choosing *Purchase Channel*;
-* Change *status* of Orders in a Batch.
+* Add __Orders__ to database;
+* Get the *'status'* of an __Order__ pass *'reference'* or *'client name*';
+* List the __Orders__ of a *'Purchase Channel'* restricting to a single *'status'*;
+* Create a __Batch__ choosing *'Purchase Channel'*;
+* Change *'status'* of __Orders__ in a __Batch__.
 
 ## Dependencies
 * Ruby: 2.4.4
 * Rails: 5.2.4.1
-* Postman was used to test all the endpoints
-* Postgres
+* Postgres 12.1
+
+## Gems
+* [tty-spinner](https://github.com/piotrmurach/tty-spinner)
+* [pry-rails](https://github.com/rweng/pry-rails)
+* [faker](https://github.com/faker-ruby/faker)
+* [rspec](https://github.com/rspec/rspec-rails)
+* [factory_bot_rails](https://github.com/thoughtbot/factory_bot_rails)
 
 ## Configuration
 1. Clone the project:
@@ -20,9 +26,14 @@ This API was developed as a Backend Challenge to Gocase's recruitment process fo
 
 2. Ajust in ```config/database.yml``` *username:* and *password:*.
 
-3. run ```rails dev:setup``` on console. This task runs ```bandle install```, ```rails db:create```, ```rails db:migrate``` and ```rails db:seed``` and populate database with 15 orders.
+3. Run ```rails dev:setup``` on console. This task runs ```bundle install```, ```rails db:create```, ```rails db:migrate``` and ```rails db:seed``` and populate database with 15 orders.
 
-4. *(Optional)* run ```rails dev:resetup``` on console to to drop recreate, migrate and populate database
+4. *(Optional)* run ```rails dev:resetup``` on console to drop, recreate, migrate and populate database.
+
+## Tests
+Run ```rails dev:tests``` or ```bundle exec rspec spec/requests/orders_spec.rb spec/requests/batches_spec.rb``` to execute tests.
+
+*Postman also was used to test all the endpoints.*
 
 ## Actions and Methods
 ### Create an Order
