@@ -1,5 +1,5 @@
 class Order < ApplicationRecord
-    validates :reference, uniqueness: true
+    validates :reference, presence: true, uniqueness: true
     validates :purchase_channel, presence: true
     validates :client_name, presence: true, allow_blank: false
     validates :address, presence: true, allow_blank: false

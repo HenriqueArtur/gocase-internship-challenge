@@ -33,7 +33,7 @@ class Api::V1::ApiController < ApplicationController
       return false
     end
 
-    def renderJSON(status, msg, httpStatus, data = [])
+    def render_json(status, msg, httpStatus, data = [])
       render json: {status: status, menssage: msg, data: data}, status: httpStatus
     end
 end
